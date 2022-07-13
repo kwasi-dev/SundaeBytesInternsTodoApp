@@ -14,7 +14,7 @@ class TodoItem {
 
   String getSubtitle() {
     DateTime currentDate = DateTime.now();
-
+    //There are 4 
     //I need to check if completed date has a value
     if (completedDate != null) {
       // I know I finished task because i have a completed date
