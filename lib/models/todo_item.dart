@@ -1,4 +1,5 @@
 class TodoItem {
+  int? id;
   bool isFinished = false;
   String description = "";
   DateTime deadline = DateTime.now();
@@ -14,7 +15,7 @@ class TodoItem {
 
   String getSubtitle() {
     DateTime currentDate = DateTime.now();
-    //There are 4 
+    //There are 4
     //I need to check if completed date has a value
     if (completedDate != null) {
       // I know I finished task because i have a completed date
@@ -44,5 +45,37 @@ class TodoItem {
       isFinished = false;
       completedDate = null;
     }
+  }
+
+  Map<String, dynamic> toMap() {
+    int finishedDatabaseValue = 0;
+    if (isFinished == true) {
+      finishedDatabaseValue = 1;
+    } else {
+      finishedDatabaseValue = 0;
+    }
+
+    String completedDateValue = "";
+
+    if (completedDate != null) {
+      completedDateValue = completedDate.toString();
+    } else {
+      completedDateValue = "";
+    }
+
+    return {
+      "description": description,
+      "deadline": deadline.toString(),
+      "is_finished": finishedDatabaseValue,
+      "completed_date": completedDateValue
+    };
+  }
+
+  TodoItem.fromMap(Map<String, dynamic> db_row) {
+    id = db_row['id'];
+    description = db_row['description'];
+    deadline = DateTime.parse(db_row['deadline']);
+    isFinished = db_row['is_finished'];
+    completedDate = DateTime.tryParse(db_row['completed_date']);
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intern_todo/models/todo_item.dart';
+import 'package:intern_todo/utilities/database.dart';
 
 class TodoScreen extends StatefulWidget {
   const TodoScreen({super.key});
@@ -12,14 +13,13 @@ class TodoScreen extends StatefulWidget {
 }
 
 class _TodoScreenState extends State<TodoScreen> {
-  List<TodoItem> items = [
-    TodoItem(
-        "Complete Geography homework", DateTime.parse("2022-07-10 10:00:00")),
-    TodoItem("Complete Physics homework", DateTime.parse("2022-07-14 12:00:00"))
-  ];
+  //Load Items from database
+  DatabaseHelper dbHelper = DatabaseHelper()..loadDatabase();
 
   @override
   Widget build(BuildContext context) {
+    List<TodoItem> items = [];
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -38,16 +38,24 @@ class _TodoScreenState extends State<TodoScreen> {
                         print("I have selected the save button");
                         String description = descriptionController.text;
                         String deadline = deadlineController.text;
-                        DateTime convertedDate = DateTime.parse(deadline);
 
-                        TodoItem newItemFromForm =
-                            TodoItem(description, convertedDate);
+                        if (description.isEmpty || deadline.isEmpty) {
+                        } else {
+                          DateTime convertedDate = DateTime.parse(deadline);
 
-                        setState(() {
-                          items.add(newItemFromForm);
-                        });
+                          TodoItem newItemFromForm =
+                              TodoItem(description, convertedDate);
 
-                        Navigator.of(context).pop();
+                          DatabaseHelper dbh = DatabaseHelper();
+
+                          dbh.saveItemToDatabase(newItemFromForm);
+
+                          setState(() {
+                            items.add(newItemFromForm);
+                          });
+
+                          Navigator.of(context).pop();
+                        }
                       },
                     ),
                     TextButton(
