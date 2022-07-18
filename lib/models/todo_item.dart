@@ -1,3 +1,5 @@
+import 'package:intern_todo/utilities/database.dart';
+
 class TodoItem {
   int? id;
   bool isFinished = false;
@@ -45,6 +47,9 @@ class TodoItem {
       isFinished = false;
       completedDate = null;
     }
+
+    DatabaseHelper dbh = DatabaseHelper();
+    dbh.saveItemToDatabase(this);
   }
 
   Map<String, dynamic> toMap() {
@@ -75,7 +80,7 @@ class TodoItem {
     id = db_row['id'];
     description = db_row['description'];
     deadline = DateTime.parse(db_row['deadline']);
-    isFinished = db_row['is_finished'];
+    isFinished = db_row['is_finished'] == 1;
     completedDate = DateTime.tryParse(db_row['completed_date']);
   }
 }

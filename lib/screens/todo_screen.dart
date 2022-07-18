@@ -18,8 +18,6 @@ class _TodoScreenState extends State<TodoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<TodoItem> items = [];
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -51,7 +49,7 @@ class _TodoScreenState extends State<TodoScreen> {
                           dbh.saveItemToDatabase(newItemFromForm);
 
                           setState(() {
-                            items.add(newItemFromForm);
+                            //RELOAD
                           });
 
                           Navigator.of(context).pop();
@@ -103,24 +101,39 @@ class _TodoScreenState extends State<TodoScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          TodoItem thisItem = items[index];
-          return CheckboxListTile(
-            title: Text(thisItem.description),
-            subtitle: Text(thisItem.getSubtitle()),
-            onChanged: (bool? value) {
-              setState(() {
-                if (value != null) {
-                  thisItem.updateCompletedDate(value);
+      body: FutureBuilder(
+          future: dbHelper.loadAllTodoItems(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return Text("Loading...");
+              default:
+                if (snapshot.hasError)
+                  return Text("Error: ${snapshot.error}");
+                else {
+                  List<TodoItem> items = snapshot.data!;
+
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      TodoItem thisItem = items[index];
+                      return CheckboxListTile(
+                        title: Text(thisItem.description),
+                        subtitle: Text(thisItem.getSubtitle()),
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value != null) {
+                              thisItem.updateCompletedDate(value);
+                            }
+                          });
+                        },
+                        value: thisItem.isFinished,
+                      );
+                    },
+                  );
                 }
-              });
-            },
-            value: thisItem.isFinished,
-          );
-        },
-      ),
+            }
+          }),
     );
   }
 }
